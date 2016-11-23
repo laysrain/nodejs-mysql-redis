@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title>Demo</title>
+        <style>
+            body{margin: 0;padding: 0;background-color: #f2f2f2;font-family: "微软雅黑";}
+            .main_con{margin: 20px auto 0;background-color: #fff;border-radius: 10px;padding: 15px 15px 5px;width: 200px;text-align: center}
+            .main_tit{line-height: 30px;}
+            .list_line{margin: 10px 0;}
+            .t_text{padding: 4px;width: 100px;}
+            .t_btn{padding: 4px 20px;background-color: cornflowerblue;color: #fff;cursor: pointer;border: none;border-radius: 5px;}
+            .sub_con{width: 400px;min-height: 150px;background-color: #fff;border-radius: 10px;margin: 20px auto;padding: 15px;float: left;margin-left: 10%}
+            .show_time{font-size: 14px;color: #999;margin-left: 20px;float: right;}
+            .show_name{margin-bottom: 10px;font-size: 16px;}
+            .svg1{background: url("/images/123.svg") no-repeat center;width: 20px;height: 20px;}
+        </style>
+    </head>
+    <body>
+        <div class="main_con">
+            <div class="main_tit">请填写开户姓名</div>
+            <div class="list_line">
+                <span class="lab">姓名:</span>
+                <input class="t_text" type="text" id="name">
+            </div>
+            <div class="list_line">
+                <input type="button" class="t_btn" value="提交" id="t_sub">
+            </div>
+        </div>
+        <div class="sub_con">
+            <div class="main_tit">Mysql获取用户数据:</div>
+            <div class="list_line list_name">
+            </div>
+        </div>
+        <div class="sub_con">
+            <div class="main_tit">Redis获取用户数据:</div>
+            <div class="list_name_r">
+
+            </div>
+        </div>
+        <script type="text/javascript" src="/js/jquery.js"></script>
+        <script type="text/javascript">
+            function ClearNameList() {
+                $(".list_name").empty();
+            }
+//            查询用户列表
+            function GetNamelist() {
+                $.ajax({
+                    url:"/GetNameList",
+                    success:function (result) {
+                        if(result.status==0){
+                            alert(result.msg);
+                            return;
+                        }
+                        ClearNameList();
+                        console.log(result);
+                        var data=result.data;
+                        var dom="";
+                        for(var i=0;i<data.length;i++){
+                            dom+='<div class="show_name" data-id="'+ data[i].id +'">'+ data[i].name +'<span class="show_time">'+ data[i].create_date +'</span>'+'</div>';
+                        }
+                        $(".list_name").append(dom);
+//                        alert(result.msg);
+                    }
+                });
+            }
+
+//            redis查询用户列表
+            function GetNameList_r() {
+                $.ajax({
+                    url:"/GetNameList_r",
+                    success:function (result) {
+                        if(result.status==0){
+                            alert(result.msg);
+                            return;
+                        }
+                        var data=result.data;
+                        console.log(data);
+                        $(".list_name_r").empty();
+                        var dom="";
+                        for(var i=0;i<data.length;i++){
+                            dom+='<div class="show_name">'+ data[i].name +'<span class="show_time">'+ data[i].create_date +'</span>'+'</div>';
+                        }
+                        $(".list_name_r").append(dom);
+//                        alert(result.msg);
+                    }
+                });
+            }
+
+            $(function ($) {
+                GetNamelist();
+                GetNameList_r();
+
+                $("#t_sub").on("click",function () {
+                    var tname=$("#name").val();
+                    var reqdata={
+                        name:tname
+                    };
+                    $.ajax({
+                        url:"/InsertName",
+                        type:"POST",
+                        data:reqdata,
+                        dataType:"json",
+                        success:function (result) {
+                            if(result.status==0){
+                                alert(result.msg);
+                                return;
+                            }
+//                            alert(result.msg);
+                            GetNamelist();
+                            GetNameList_r();
+                        }
+                    });
+                });
+
+            });
+        </script>
+    </body>
+</html>
